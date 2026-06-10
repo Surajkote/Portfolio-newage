@@ -67,7 +67,7 @@ function HeroSection() {
 
   return (
     <section id="hero" ref={ref} className="section" style={{ minHeight: '100vh', flexDirection: 'column', position: 'relative' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: 'auto' }}>
+      <div className="spline-container" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: 'auto' }}>
         <Spline scene="https://prod.spline.design/d3WOnFTqxOI9QvtJ/scene.splinecode" />
       </div>
       <div style={{ textAlign: 'center', maxWidth: '900px', zIndex: 1, pointerEvents: 'none' }}>
@@ -332,38 +332,27 @@ function ContactSection() {
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
-    let animationFrameId
-    const animateFade = (start, end, duration, startTime) => {
-      const now = performance.now()
-      const progress = Math.min((now - startTime) / duration, 1)
-      video.style.opacity = start + (end - start) * progress
-      if (progress < 1) {
-        animationFrameId = requestAnimationFrame(() => animateFade(start, end, duration, startTime))
-      }
-    }
     const handleCanPlay = () => {
       video.play().catch(e => console.log('Autoplay blocked:', e))
-      animateFade(0, 1, 500, performance.now())
+      video.style.opacity = '1'
     }
     const handleTimeUpdate = () => {
       const remaining = video.duration - video.currentTime
-      if (remaining > 0 && remaining <= 0.55 && parseFloat(video.style.opacity || '1') > 0.5) {
-        animateFade(parseFloat(video.style.opacity || '1'), 0, 500, performance.now())
+      if (remaining > 0 && remaining <= 0.55) {
+        video.style.opacity = '0'
       }
     }
     const handleEnded = () => {
-      video.style.opacity = '0'
       setTimeout(() => {
         video.currentTime = 0
         video.play().catch(e => console.log('Autoplay blocked:', e))
-        animateFade(0, 1, 500, performance.now())
+        video.style.opacity = '1'
       }, 100)
     }
     video.addEventListener('canplay', handleCanPlay)
     video.addEventListener('timeupdate', handleTimeUpdate)
     video.addEventListener('ended', handleEnded)
     return () => {
-      cancelAnimationFrame(animationFrameId)
       video.removeEventListener('canplay', handleCanPlay)
       video.removeEventListener('timeupdate', handleTimeUpdate)
       video.removeEventListener('ended', handleEnded)
@@ -387,6 +376,7 @@ function ContactSection() {
           objectPosition: 'bottom',
           zIndex: 0,
           opacity: 0, // Starts at 0 for the JS fade logic
+          transition: 'opacity 0.5s ease',
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 25%, black 100%)',
           maskImage: 'linear-gradient(to bottom, transparent 0%, black 25%, black 100%)'
         }}

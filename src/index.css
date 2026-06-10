@@ -333,4 +333,5 @@ body {
 @media (max-width: 768px) {
   .section-heading { font-size: 2rem !important; }
   .section { padding: 4rem 1.25rem; }
+  .spline-container { pointer-events: none !important; }
 }
