@@ -15,8 +15,8 @@ function Reveal({ id, children }) {
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.from(ref.current.querySelectorAll('.ac'), {
-        scrollTrigger: { trigger: ref.current, start: 'top 82%', toggleActions: 'play none none reverse' },
-        y: 48, opacity: 0, duration: 0.85, stagger: 0.1, ease: 'power3.out',
+        scrollTrigger: { trigger: ref.current, start: 'top 95%', toggleActions: 'play none none none' },
+        y: 30, opacity: 0, duration: 0.5, stagger: 0.05, ease: 'power2.out',
       })
     }, ref)
     return () => ctx.revert()
@@ -331,31 +331,8 @@ function ContactSection() {
 
   useEffect(() => {
     const video = videoRef.current
-    if (!video) return
-    const handleCanPlay = () => {
+    if (video) {
       video.play().catch(e => console.log('Autoplay blocked:', e))
-      video.style.opacity = '1'
-    }
-    const handleTimeUpdate = () => {
-      const remaining = video.duration - video.currentTime
-      if (remaining > 0 && remaining <= 0.55) {
-        video.style.opacity = '0'
-      }
-    }
-    const handleEnded = () => {
-      setTimeout(() => {
-        video.currentTime = 0
-        video.play().catch(e => console.log('Autoplay blocked:', e))
-        video.style.opacity = '1'
-      }, 100)
-    }
-    video.addEventListener('canplay', handleCanPlay)
-    video.addEventListener('timeupdate', handleTimeUpdate)
-    video.addEventListener('ended', handleEnded)
-    return () => {
-      video.removeEventListener('canplay', handleCanPlay)
-      video.removeEventListener('timeupdate', handleTimeUpdate)
-      video.removeEventListener('ended', handleEnded)
     }
   }, [])
 
@@ -363,6 +340,8 @@ function ContactSection() {
     <Reveal id="contact">
       <video
         ref={videoRef}
+        autoPlay
+        loop
         muted
         playsInline
         preload="auto"
@@ -375,8 +354,7 @@ function ContactSection() {
           objectFit: 'cover',
           objectPosition: 'bottom',
           zIndex: 0,
-          opacity: 0, // Starts at 0 for the JS fade logic
-          transition: 'opacity 0.5s ease',
+          opacity: 1, // Fixed native playback
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 25%, black 100%)',
           maskImage: 'linear-gradient(to bottom, transparent 0%, black 25%, black 100%)'
         }}
