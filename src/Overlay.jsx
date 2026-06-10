@@ -15,8 +15,8 @@ function Reveal({ id, children }) {
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.from(ref.current.querySelectorAll('.ac'), {
-        scrollTrigger: { trigger: ref.current, start: 'top 95%', toggleActions: 'play none none none' },
-        y: 30, opacity: 0, duration: 0.5, stagger: 0.05, ease: 'power2.out',
+        scrollTrigger: { trigger: ref.current, start: 'top bottom+=400', toggleActions: 'play none none none' },
+        y: 30, opacity: 0, duration: 0.3, stagger: 0.02, ease: 'power2.out',
       })
     }, ref)
     return () => ctx.revert()
@@ -248,10 +248,10 @@ function SkillsSection() {
     gsap.set(tags, { scale: 0.4, opacity: 0 })
     const obs = new IntersectionObserver(([e]) => {
       if (e.isIntersecting) {
-        gsap.to(tags, { scale: 1, opacity: 1, duration: 0.45, stagger: 0.04, ease: 'back.out(1.7)' })
+        gsap.to(tags, { scale: 1, opacity: 1, duration: 0.3, stagger: 0.01, ease: 'power2.out' })
         obs.disconnect()
       }
-    }, { threshold: 0.15 })
+    }, { threshold: 0, rootMargin: '500px' })
     obs.observe(ref.current)
     return () => obs.disconnect()
   }, [])
@@ -331,9 +331,25 @@ function ContactSection() {
 
   useEffect(() => {
     const video = videoRef.current
-    if (video) {
-      video.play().catch(e => console.log('Autoplay blocked:', e))
-    }
+    if (!video) return
+    
+    // Explicitly set muted to guarantee autoplay works on strict browsers (like Safari/Chrome on Mac)
+    video.muted = true;
+    video.defaultMuted = true;
+    
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(err => console.log('Video play error:', err));
+        }
+      } else {
+        video.pause();
+      }
+    }, { threshold: 0, rootMargin: '200px' })
+    
+    obs.observe(video)
+    return () => obs.disconnect()
   }, [])
 
   return (
@@ -343,6 +359,7 @@ function ContactSection() {
         autoPlay
         loop
         muted
+        defaultMuted
         playsInline
         preload="auto"
         style={{
